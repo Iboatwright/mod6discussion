@@ -1,0 +1,113 @@
+Write a program that will allow a student to enter their name and then
+ask them to solve 10 mathematical equations.  The program should
+display two random numbers that are to be added, such as:
+      247
+    + 129
+The program should allow the student to enter the answer.  The program
+should then display whether the answer was right or wrong, and
+accumulate the correct values.  After the 10 questions are asked,
+calculate the average correct.  Then display the student name, the
+number correct, and the average correct in both decimal and percentage
+format.
+
+In addition to any system functions you may use, you might consider the
+following functions:
+    A function that allows the student to enter their name.
+    A function that gets two random numbers, anywhere from 1 to 500.
+    A function that displays the equation and asks the user to enter their answer.
+    A function that checks to see if the answer is right and accumulates the number right.
+    A function that calculates the results.
+    A function that displays the student name, the number right, and the average right.
+
+Your sample output might look as follows (random numbers will be different):
+
+    Enter Student Name: Katie
+    What is the answer to the following equation
+    424 + 28
+    What is the sum: 472
+    Wrong
+
+    What is the answer to the following equation
+    163 + 233
+    What is the sum: 396
+    Right
+
+    What is the answer to the following equation
+    285 + 453
+    What is the sum: 688
+    Wrong
+
+    Etc…(through 10 iterations)
+
+    Information for student:  Katie
+    The number right:  5
+    The average right is 0.50 or 50.0 %
+
+Pseudocode
+----------
+Module main()
+	//Declare local variables
+	Declare Integer counter = 0
+	Declare String studentName = “NO NAME”
+	Declare Real averageRight = 0.0
+	Declare Real right = 0.0
+	Declare Integer number1 = 0
+	Declare Integer number2 = 0
+	Declare answer = 0.0
+
+	Set studentName = inputNames()
+	//Loop to run program again
+	While counter < 10
+		//calls functions
+        Call getNumbers(number1, number2)
+        Set answer = getAnswer(number1, number2, answer)
+        Set right = checkAnswer(number1, number2, answer, right)
+        Set counter = counter + 1
+	End While
+	Set averageRight = results(right, averageRight)
+	Call displayInfo(right, averageRight, studentName)
+End Module
+
+Function String inputNames(String studentName)
+	Display “Enter Student Name:”
+	Input studentName
+	Return studentName
+End Function
+
+Module getNumbers(Integer Ref number1, Integer Ref number2)
+	Set number1 = random(1, 500)
+	Set number2 = random(1, 500)
+End Module
+
+Function Integer getAnswer(Integer number1, Integer number2, Integer answer)
+	Display “What is the answer to the following equation”
+	Display number1
+	Display “+”
+	Display number2
+	Display “What is the sum:”
+	Input answer
+	Return answer
+End Function
+
+Function Integer checkAnswer(Integer number1, Integer number2, Integer answer,
+                             Integer right)
+	If answer == number1 + number2 then
+		Display “Right”
+		Set right = right + 1
+	Else
+		Display “Wrong”
+	End If
+	Return right
+End Function
+
+Function Real results (Integer right, Real AverageRight)
+	Set averageRight = right / 10
+	Return averageRight
+End Function
+
+Module displayInfo(Integer right, Real averageRight, String studentName)
+	Display “Information for student:”, studentName
+	Display “The number right:”, right
+	Display “The average right is:”, averageRight
+End Module
+
