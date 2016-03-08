@@ -175,7 +175,7 @@ def math_test():
     testData = {
         'qCount': 1,
         'qList': [],
-        'operations': ['+'],
+        'operations': ['a'],
         'qMinValue': 0,
         'qMaxValue': 500,
         'qTotal': 10,
@@ -189,9 +189,15 @@ def math_test():
 #   parameter.  The total number of equations is passed in the qTotal
 #   variable. Optionally a list of operations can be supplied for a wider
 #   question variety.  The default operation is addition.
-def generate_test_questions(qList,ops=('+')):
-
+def generate_test_questions(qList, ops=('a',), qTotal=10):
+    for q in range(qTotal):
+        op = random.choice(ops)
+        rVals = generate_numbers()
+        qList[q] = (rVals[0], rVals[1], operate(op, rVals))
     return None
+
+def operate(ops, rVals):
+
 
 
 # Simple random number generator.  Optional parameters specify minimum/maximum integer
@@ -201,6 +207,7 @@ def generate_numbers(min=0, max=500, xNums=2):
     #   integers.  The range function is used with the min and max variables
     #   to set the possible integer values generated.
     return random.sample(range(min, max), xNums)
+
 
 
 # Calculates the average of two numbers and return the value.  Optionally
