@@ -16,13 +16,18 @@ def main():
     #   entry a tuple of [0] the display text and [1] the function to call.
     #   Menu numbers start at 1), option 0) defaults to Exit.
     customMenuOptions = [('Enter your name',enter_username),('Take math test', math_test)]
+    # Any custom persistant variables are added to this dictionary.
+    cVars = {'userName':''}
 
     # Displays the intro to user.
     fluffy_intro()
 
+    # Initial request for user's name.
+    enter_username(cVars['userName'])
+
     # Call the menu loop program.  The menu options are: 1) Average Test
     #   Scores and 0) Exit the program.
-    main_menu(customMenuOptions)
+    main_menu(customMenuOptions, cVars)
 
     # End main.
     return None
@@ -41,8 +46,8 @@ def fluffy_intro():
 
 
 # Returns a string used to identify a new part(i.e. page) of the program.
-def page_header(title):
-    return '{0}\n{1:^40}\n{0}'.format('='*40,title)
+def page_header(title, userName=''):
+    return '{0}\n{1:^40}\n{0}\n{2:>40}'.format('='*40, title, userName)
 
 
 # Section Block: Menu ------------------------------------------------------->
@@ -52,7 +57,7 @@ def page_header(title):
 #   option is then executed.  If that option is 0 the while loop is terminated
 #   and control returns to the calling function.  Otherwise after the selected
 #   function is finished main menu is displayed again.
-def main_menu(customMenuOptions):
+def main_menu(customMenuOptions, cVars):
     # Menu control options. A list with each entry a tuple of
     #   [0] the display text and [1] the function to call.
     menuOptions = [('Exit',exit_menu)]  # Set default menu options.
@@ -64,7 +69,7 @@ def main_menu(customMenuOptions):
 
     # While menuSelection does not equal 0 (the default exit option.)
     while menuSelection != 0:
-        display_menu(menuOptions)
+        display_menu(menuOptions,cVars)
         # Calls the input request/validation function and converts the return
         #   value into an integer.  The number of menu elements is prepended
         #   to the input request and used as part of the validation testing.
@@ -73,7 +78,7 @@ def main_menu(customMenuOptions):
 
         # Use the validated user input to select the function reference and
         #   execute the function with the trailing ().
-        menuSelection = menuOptions[menuSelection][1]()
+        menuSelection = menuOptions[menuSelection][1](cVars)
 
     # By design the exit_menu function runs before the while loop breaks.
     return None
@@ -81,8 +86,8 @@ def main_menu(customMenuOptions):
 
 # Prints the menu header and menu options to stdout.  The menuOptions list
 #   is the parameter and used to generate the option strings.
-def display_menu(mOpts):
-    print(page_header('Main Menu'))
+def display_menu(mOpts,cVars):
+    print(page_header('Main Menu'),cVars['userName'])
     # This loops through the list starting at [1] and prints [0] (Exit)
     #   at the end.
     for l in range(1,len(mOpts)):
@@ -92,9 +97,10 @@ def display_menu(mOpts):
 
 
 # Sets the loop control variable to 0 which ends the while loop.
-def exit_menu():
+def exit_menu(cVars):
+    name = cVars['userName']
     # "Until we meet again, farewell."
-    print("\nJusqu'à ce que nous nous reverrons, adieu.")
+    print("\nJusqu'à ce que nous nous reverrons, adieu {}.".format(name))
     return 0
 
 
@@ -155,49 +161,69 @@ def test_value(testCondition, testItem):
         #   logic tests, False is returned.
         try:
             if int(testItem) >= 0 and int(testCondition[:1]) > int(testItem):
-                return True
+                valid = True
             else:
-                return False
+                valid = False
         except:
-            return False
+            valid = False
+    elif testCondition == 'integer':
+        try:
+            int(testItem)
+            valid = True
+        except:
+            valid = False
     else:
-        return None
+        valid = None
+    return valid
 
 
 # Section Block: Enter user Name -------------------------------------------->
-def enter_username():
-    return input('Please enter your name: ')
+def enter_username(name):
+    name = input('Please enter your name: ')
+    return None
 
 
 # Section Block: Math Test -------------------------------------------------->
-def math_test():
+def math_test(cVars):
     # Local variables Dict.
     testData = {
-        'qCount': 1,
         'qList': [],
-        'operations': ['a'],
-        'qMinValue': 0,
-        'qMaxValue': 500,
+        'aList': [],
+        'minValue': 0,
+        'maxValue': 500,
+        'intsPerEquation': 2,
         'qTotal': 10,
         'qCorrect': 0,
         'avgCorrect': 0.0,
         'avgPercent': 0,
     }
+    # Generate random math problems.  Optional arguments can be passed for
+    #   some variety.  See function definition for more information.
+    generate_test_questions(testData['qList'])
+
+    # Prompt user to answer the problems in qList and store their answers in
+    #   aList.
+    test_user(testData['qList'], testData['aList'], testData['qCorrect'])
+
+    display_results(cVars['userName'],testData['qCorrect'],testData['qTotal'],
+                    testData['avgCorrect'],testData['avgPercent'])
     return None
+
 
 # This randomly generates test questions and stores them in the list reference
 #   parameter.  The total number of equations is passed in the qTotal
-#   variable. Optionally a list of operations can be supplied for a wider
-#   question variety.  The default operation is addition.
-def generate_test_questions(qList, ops=('a',), qTotal=10):
+#   variable.  The result is a list of qTotal lists with the supplied or
+#   defaulted number of integers and the sum as the last value in each list.
+def generate_test_questions(qList, qTotal=10, min=0, max=500, intsPer=2):
+    # This loop runs a number of times equal to the qTotal parameter.
     for q in range(qTotal):
-        op = random.choice(ops)
-        rVals = generate_numbers()
-        qList[q] = (rVals[0], rVals[1], operate(op, rVals))
+        # On each iteration a list of random numbers are generated and
+        #   appended to the question list aList.
+        qList.append(generate_numbers(min, max, intsPer))
+        # The sum of this iteration's random numbers is appended to the end
+        #   of this iteration's entry in qList.
+        qList[q].append(sum(qList[q]))
     return None
-
-def operate(ops, rVals):
-
 
 
 # Simple random number generator.  Optional parameters specify minimum/maximum integer
@@ -208,6 +234,34 @@ def generate_numbers(min=0, max=500, xNums=2):
     #   to set the possible integer values generated.
     return random.sample(range(min, max), xNums)
 
+
+# todo: add comments
+def test_user(questions, answers, correct):
+    for q in questions:
+        check = q[-1]
+        answers.append(equation(q))
+        if check == answers[-1]: correct += 1
+    return None
+
+
+# equation presents the equation to the user and returns their validated
+#   answer.
+def equation(q):
+    # This breaks down starting innermost.  Map is converting the integers in
+    #   q list into strings using the str function.  Then join is
+    #   concatinating the new string values with the string ' + '. Next an
+    #   equals sign is appended to the string.  Finally the resulting string
+    #   is printed to stdout.
+    eq = ' + '.join(map(str, q[:-1])) + ' ='
+    print(eq)
+    answer = get_valid_inputs([['integer','answer']])
+    if q[-1] == answer:
+        print('Correct!')
+    else:
+        print('Wrong answer. The correct solution is:\n'
+              '{0} {1}'.format(eq, answer))
+    # Return the validated user answer to the calling function.
+    return answer
 
 
 # Calculates the average of two numbers and return the value.  Optionally
@@ -223,9 +277,8 @@ def calc_average(sum, count, precision=2, percent=False):
 
 # display_results is passed values used in print statements to display
 #  the results of the program to the user.
-def display_results(userName, count, total, avg, avgP):
-    print(page_header('Math Test Results'))
-    print('{}'.format(userName))
+def display_results(name, count, total, avg, avgP):
+    print(page_header('Math Test Results'),name)
     print('You answered {0} correct out of {1} questions.'.format(count,
                                                                   total))
     print('Your average correct is: {0} or {1}'.format(avg, avgP))
