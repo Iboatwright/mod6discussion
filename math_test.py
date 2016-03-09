@@ -23,7 +23,7 @@ def main():
     fluffy_intro()
 
     # Initial request for user's name.
-    enter_username(cVars['userName'])
+    enter_username(cVars)
 
     # Call the menu loop program.  The menu options are: 1) Average Test
     #   Scores and 0) Exit the program.
@@ -87,7 +87,7 @@ def main_menu(customMenuOptions, cVars):
 # Prints the menu header and menu options to stdout.  The menuOptions list
 #   is the parameter and used to generate the option strings.
 def display_menu(mOpts,cVars):
-    print(page_header('Main Menu'),cVars['userName'])
+    print(page_header('Main Menu', cVars['userName']))
     # This loops through the list starting at [1] and prints [0] (Exit)
     #   at the end.
     for l in range(1,len(mOpts)):
@@ -178,8 +178,8 @@ def test_value(testCondition, testItem):
 
 
 # Section Block: Enter user Name -------------------------------------------->
-def enter_username(name):
-    name = input('Please enter your name: ')
+def enter_username(c):
+    c['userName'] = input('Please enter your name: ')
     return None
 
 
@@ -203,8 +203,9 @@ def math_test(cVars):
 
     # Prompt user to answer the problems in qList and store their answers in
     #   aList.
-    test_user(testData['qList'], testData['aList'], testData['qCorrect'])
-
+    testData['qCorrect'] = test_user(testData['qList'], testData['aList'], testData['qCorrect'])
+    testData['avgCorrect'] = calc_average(testData['qCorrect'],testData['qTotal'])
+    testData['avgPercent'] = calc_average(testData['qCorrect'],testData['qTotal'],4,True)
     display_results(cVars['userName'],testData['qCorrect'],testData['qTotal'],
                     testData['avgCorrect'],testData['avgPercent'])
     return None
@@ -235,13 +236,18 @@ def generate_numbers(min=0, max=500, xNums=2):
     return random.sample(range(min, max), xNums)
 
 
-# todo: add comments
+# This function loops through the questions list.  Each iteration calls the
+#   equation function passing the values for that equation and assigns the
+#   returned answer to the answers list.  If the user was correct then the
+#   correct counter is incremented.  After all questions are answered the
+#   correct counter value is returned to the calling function.
 def test_user(questions, answers, correct):
     for q in questions:
+        # check is the correct answer.
         check = q[-1]
         answers.append(equation(q))
         if check == answers[-1]: correct += 1
-    return None
+    return correct
 
 
 # equation presents the equation to the user and returns their validated
@@ -253,8 +259,8 @@ def equation(q):
     #   equals sign is appended to the string.  Finally the resulting string
     #   is printed to stdout.
     eq = ' + '.join(map(str, q[:-1])) + ' ='
-    print(eq)
-    answer = get_valid_inputs([['integer','answer']])
+    print('{0}\n{1}'.format('_'*40,eq))
+    answer = int(get_valid_inputs([['integer','answer']]))
     if q[-1] == answer:
         print('Correct!')
     else:
@@ -268,10 +274,10 @@ def equation(q):
 #   specify how many decimal places are returned.  If percent is True or if
 #   there is no fractional component, the value is converted to an integer
 #   and returned.
-def calc_average(sum, count, precision=2, percent=False):
-    avg = round(sum / count, precision)
-    if percent or sum % count == 0:
-        avg = int(avg)
+def calc_average(x, xTotal, precision=2, percent=False):
+    avg = round(x / xTotal, precision)
+    if percent: avg = '{}%'.format(int(avg * 100))
+    elif x % xTotal == 0: avg = int(avg)
     return avg
 
 
