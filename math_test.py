@@ -7,7 +7,7 @@
 #   test the user's results and average score will be displayed.
 #
 # Ivan Boatwright
-# March {insert date}, 2016
+# March 9, 2016
 import random
 
 
@@ -15,7 +15,8 @@ def main():
     # Menu control options passed to the menu function.  A list with each
     #   entry a tuple of [0] the display text and [1] the function to call.
     #   Menu numbers start at 1), option 0) defaults to Exit.
-    customMenuOptions = [('Enter your name',enter_username),('Take math test', math_test)]
+    customMenuOptions = [('Enter your name',enter_username),
+                         ('Take math test', math_test)]
     # Any custom persistant variables are added to this dictionary.
     cVars = {'userName':''}
 
@@ -126,7 +127,6 @@ def get_valid_inputs(requestsList):
         # If test_value returns False, the While executes and the user is
         #   prompted to enter a valid value.
         while not test_value(request[0], untestedInput):
-
             print('!!! Error: {} is not a valid value.'.format(untestedInput))
             untestedInput = (prompt_user_for_input(request[1]))
 
@@ -148,7 +148,7 @@ def prompt_user_for_input(promptTerm):
 
 
 # test_value uses the testCondition to select the proper test.
-# It returns True or False to the calling Module.
+# True or False is returned to the calling Module.
 def test_value(testCondition, testItem):
     # The If-Then-Else structure functions as a Switch for test selection.
     if testCondition[1:] == ' menu options':
@@ -178,12 +178,16 @@ def test_value(testCondition, testItem):
 
 
 # Section Block: Enter user Name -------------------------------------------->
+# Assigns the user entered value to the userName variable used in main_menu.
 def enter_username(c):
     c['userName'] = input('Please enter your name: ')
     return None
 
 
 # Section Block: Math Test -------------------------------------------------->
+# Math test control function.  When this function returns to main_menu its
+#   variables pass out of scope.  So when it is called again the variables are
+#   re-initialized.
 def math_test(cVars):
     # Local variables Dict.
     testData = {
@@ -203,11 +207,15 @@ def math_test(cVars):
 
     # Prompt user to answer the problems in qList and store their answers in
     #   aList.
-    testData['qCorrect'] = test_user(testData['qList'], testData['aList'], testData['qCorrect'])
-    testData['avgCorrect'] = calc_average(testData['qCorrect'], testData['qTotal'])
-    testData['avgPercent'] = calc_average(testData['qCorrect'], testData['qTotal'], 4, True)
-    display_results(cVars['userName'], testData['qCorrect'], testData['qTotal'],
-                    testData['avgCorrect'], testData['avgPercent'])
+    testData['qCorrect'] = test_user(testData['qList'], testData['aList'],
+                                     testData['qCorrect'])
+    testData['avgCorrect'] = calc_average(testData['qCorrect'],
+                                          testData['qTotal'])
+    testData['avgPercent'] = calc_average(testData['qCorrect'],
+                                          testData['qTotal'], 4, True)
+    display_results(cVars['userName'], testData['qCorrect'],
+                    testData['qTotal'], testData['avgCorrect'],
+                    testData['avgPercent'])
     return None
 
 
@@ -227,8 +235,8 @@ def generate_test_questions(qList, qTotal=10, rMin=0, rMax=500, intsPer=2):
     return None
 
 
-# Simple random number generator.  Optional parameters specify minimum/maximum integer
-#   values selected and how many values to return.
+# Simple random number generator.  Optional parameters specify minimum/maximum
+#   integer values selected and how many values to return.
 def generate_numbers(rMin=0, rMax=500, xNums=2):
     # Uses the sample function from the random module to generate a list of
     #   integers.  The range function is used with the min and max variables
